@@ -1,4 +1,10 @@
-gradio
 langchain
+langchain-community
+langchain-groq
+langchain-huggingface
+sentence-transformers
+faiss-cpu
 pypdf
+gradio
+python-dotenv
 pandas
