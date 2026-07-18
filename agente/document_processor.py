@@ -1,6 +1,7 @@
 import os
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 def load_and_split_documents(data_dir: str = "data", chunk_size: int = 1000, chunk_overlap: int = 150):
     """Carga todos los PDFs de data_dir y los divide en chunks."""
