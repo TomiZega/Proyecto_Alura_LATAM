@@ -20,7 +20,8 @@ ROOT_DIR = Path(__file__).resolve().parent
 DATA_DIR = ROOT_DIR.parent / "data"
 DB_DIR = ROOT_DIR / "db"
 
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+#EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2" (anda mal en español)
+EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
 

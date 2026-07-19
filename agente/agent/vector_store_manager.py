@@ -2,7 +2,8 @@ from pathlib import Path
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+#EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2" (anda mal en español)
+EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 DB_DIR = Path(__file__).resolve().parents[1] / "db"
 
 
