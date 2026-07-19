@@ -42,6 +42,7 @@ class RAGChain:
         self.retriever = retriever
         self.llm = llm
         self.prompt = prompt
+        
 
     def invoke(self, inputs: dict) -> dict:
         query = inputs["input"]
@@ -63,7 +64,8 @@ def build_agent(vector_store, model_name: str = GROQ_MODEL, temperature: float =
     llm = ChatGroq(
         model=model_name,
         temperature=temperature,
-        api_key=os.environ["GROQ_API_KEY"],
+        #api_key=os.environ["GROQ_API_KEY"],
+        api_key=_get_secret("GROQ_API_KEY"),
     )
 
     prompt = ChatPromptTemplate.from_messages([
@@ -98,3 +100,10 @@ def ask_agent(chain: RAGChain, question: str):
     _log_interaction(question, answer, sources, elapsed)
 
     return answer, sources
+
+def _get_secret(key: str, default: str = "") -> str:
+    try:
+        import streamlit as st
+        return st.secrets.get(key, os.getenv(key, default))
+    except Exception:
+        return os.getenv(key, default)

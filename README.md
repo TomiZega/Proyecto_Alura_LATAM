@@ -11,3 +11,6 @@ Ejemplos de preguntas que el agente puede responder.
 Ejemplos de respuestas generadas por el agente.
 
 capturas de pantalla
+
+--------------------------------
+para correlo es con: streamlit run app.py

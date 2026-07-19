@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 log = logging.getLogger(__name__)
 
 ROOT_DIR = Path(__file__).resolve().parent
-DATA_DIR = ROOT_DIR / "data"
+#DATA_DIR = ROOT_DIR / "data"
+DATA_DIR = ROOT_DIR.parent / "data"
 DB_DIR = ROOT_DIR / "db"
 
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
