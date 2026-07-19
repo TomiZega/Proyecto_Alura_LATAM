@@ -1,13 +1,13 @@
 import os
 from dotenv import load_dotenv
 import gradio as gr
-from agent import load_and_split_documents, get_or_create_vector_store, build_agent, ask_agent
+from agent import build_agent, ask_agent
+from agent.vector_store_manager import load_vector_store
 
 load_dotenv()
 
-print("Inicializando agente...")
-chunks = load_and_split_documents("data")
-vector_store = get_or_create_vector_store(chunks)
+print("Cargando índice FAISS...")
+vector_store = load_vector_store()
 qa_chain = build_agent(vector_store)
 print("Agente listo.")
 

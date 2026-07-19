@@ -1,44 +1,100 @@
 import os
+import json
+import time
+import warnings
+from datetime import datetime, timezone
+
+warnings.filterwarnings("ignore")
+
 from langchain_groq import ChatGroq
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
-PROMPT_TEMPLATE = """Sos un asistente virtual de BimBam Buy, una tienda online.
-Respondé la pregunta del usuario basándote ÚNICAMENTE en el siguiente contexto extraído de los documentos oficiales de la empresa.
-Si la respuesta no está en el contexto, decí claramente que no tenés esa información, no inventes nada.
+GROQ_MODEL = os.getenv("GROQ_MODEL_NAME", "llama-3.1-8b-instant")
+TOP_K = 4
+TEMPERATURE = 0.2
 
-Contexto:
-{context}
+SYSTEM_PROMPT = """Sos el asistente virtual de BimBam Buy, una tienda online.
 
-Pregunta: {question}
+Tu función es responder consultas de clientes ESTRICTAMENTE basándote en los \
+fragmentos de documentación oficial que se te proporcionan como contexto.
 
-Respuesta:"""
+REGLAS OBLIGATORIAS:
+1. Respondé ÚNICAMENTE con información presente en el contexto proporcionado.
+2. Si la información solicitada NO está en el contexto, respondé exactamente: \
+"No encontré esta información en los documentos disponibles. Te recomiendo \
+contactar directamente a atención al cliente."
+3. No inventes ni supongas información que no esté en el contexto.
+4. Respondé siempre en español, de forma clara y directa.
+5. Cuando sea relevante, indicá de qué documento sale la información.
 
-def build_agent(vector_store, model_name: str = "llama-3.3-70b-versatile", temperature: float = 0.2):
+CONTEXTO DOCUMENTADO:
+{context}"""
+
+LOG_PATH = "logs/ejecucion.jsonl"
+
+
+class RAGChain:
+    """Envoltura manual del pipeline RAG (retriever + prompt + LLM),
+    sin depender de langchain.chains para evitar problemas de compatibilidad
+    con LangChain 1.x."""
+
+    def __init__(self, retriever, llm, prompt):
+        self.retriever = retriever
+        self.llm = llm
+        self.prompt = prompt
+
+    def invoke(self, inputs: dict) -> dict:
+        query = inputs["input"]
+        docs = self.retriever.invoke(query)
+        context = "\n\n".join(doc.page_content for doc in docs)
+
+        messages = self.prompt.format_messages(context=context, input=query)
+        response = self.llm.invoke(messages)
+
+        return {"answer": response.content, "context": docs}
+
+
+def build_agent(vector_store, model_name: str = GROQ_MODEL, temperature: float = TEMPERATURE) -> RAGChain:
+    retriever = vector_store.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": TOP_K},
+    )
+
     llm = ChatGroq(
         model=model_name,
         temperature=temperature,
-        groq_api_key=os.environ["GROQ_API_KEY"],
+        api_key=os.environ["GROQ_API_KEY"],
     )
 
-    retriever = vector_store.as_retriever(search_kwargs={"k": 4})
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", SYSTEM_PROMPT),
+        ("human", "{input}"),
+    ])
 
-    prompt = PromptTemplate(
-        template=PROMPT_TEMPLATE,
-        input_variables=["context", "question"]
-    )
+    return RAGChain(retriever, llm, prompt)
 
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        chain_type_kwargs={"prompt": prompt},
-        return_source_documents=True,
-    )
-    return qa_chain
 
-def ask_agent(qa_chain, question: str):
-    result = qa_chain.invoke({"query": question})
-    answer = result["result"]
-    sources = {doc.metadata.get("source", "desconocido") for doc in result["source_documents"]}
+def _log_interaction(question, answer, sources, elapsed_seconds):
+    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "pregunta": question,
+        "respuesta": answer,
+        "fuentes": list(sources),
+        "tiempo_respuesta_seg": round(elapsed_seconds, 2),
+    }
+    with open(LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def ask_agent(chain: RAGChain, question: str):
+    start = time.time()
+    result = chain.invoke({"input": question})
+    elapsed = time.time() - start
+
+    answer = result["answer"]
+    sources = {doc.metadata.get("source", "desconocido") for doc in result["context"]}
+
+    _log_interaction(question, answer, sources, elapsed)
+
     return answer, sources
