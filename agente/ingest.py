@@ -22,8 +22,24 @@ DB_DIR = ROOT_DIR / "db"
 
 #EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2" (anda mal en español)
 EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 150
+CHUNK_SIZE = 700
+CHUNK_OVERLAP = 200
+
+def strip_table_of_contents(text: str) -> str:
+    """
+    Los documentos de BimBam Buy tienen un índice al inicio, seguido de una
+    línea separadora '---', antes del contenido real. Descartamos todo lo
+    anterior al separador, ya que el índice no aporta información consultable,
+    solo compite por espacio en la búsqueda semántica.
+    """
+    marker = "\n---\n"
+    idx = text.find(marker)
+    if idx != -1:
+        return text[idx + len(marker):].strip()
+    # Fallback: si no se encuentra el separador exacto (por variaciones de
+    # espacios/saltos de línea en la extracción del PDF), devolvemos el texto
+    # completo sin recortar, para no perder contenido por error.
+    return text.strip()
 
 
 def run_ingestion():
@@ -40,6 +56,8 @@ def run_ingestion():
     for pdf_path in pdf_files:
         loader = PyPDFLoader(str(pdf_path))
         docs = loader.load()
+        for doc in docs:
+            doc.page_content = strip_table_of_contents(doc.page_content)
         documents.extend(docs)
         log.info(f"Cargado: {pdf_path.name} ({len(docs)} páginas)")
 
@@ -57,6 +75,10 @@ def run_ingestion():
         model_kwargs={"device": "cpu"},
         encode_kwargs={"normalize_embeddings": True},
     )
+
+    for i, doc in enumerate(docs):
+        print(f"--- Página {i+1} (primeros 100 chars) ---")
+        print(doc.page_content[:100])
 
     DB_DIR.mkdir(parents=True, exist_ok=True)
     vectorstore = FAISS.from_documents(chunks, embeddings)

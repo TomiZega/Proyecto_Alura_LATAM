@@ -10,7 +10,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 
 GROQ_MODEL = os.getenv("GROQ_MODEL_NAME", "llama-3.1-8b-instant")
-TOP_K = 4
+TOP_K = 8
 TEMPERATURE = 0.2
 
 SYSTEM_PROMPT = """Sos el asistente virtual de BimBam Buy, una tienda online.

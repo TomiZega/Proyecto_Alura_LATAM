@@ -13,7 +13,7 @@ preguntas = [
 
 for q in preguntas:
     print(f"\n{'='*60}\nPregunta: {q}\n{'='*60}")
-    resultados = vs.similarity_search_with_score(q, k=4)
+    resultados = vs.similarity_search_with_score(q, k=8)
     for i, (doc, score) in enumerate(resultados):
         fuente = doc.metadata.get("source", "?")
         print(f"\n--- Chunk {i+1} (score: {score:.4f}) — {fuente} ---")
