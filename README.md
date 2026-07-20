@@ -121,6 +121,24 @@ La aplicación queda disponible en `http://localhost:8501`.
 
 *(Correctamente evita inventar una respuesta, cumpliendo la regla de no alucinar información fuera del contexto documentado.)*
 
+**Pregunta:** Teniendo en cuenta todos los documentos, ¿cuál es la relación entre ellos?
+
+> Basándome en los documentos proporcionados, puedo identificar algunas relaciones entre ellos:
+>
+> **Política de Reembolsos y Devoluciones:** se relaciona con la Guía de Tiempos y Costos de Envío (cancelaciones, reversos y devoluciones), el Manual de Garantía de Productos (cuando el reembolso depende de una falla cubierta) y las Preguntas Frecuentes sobre Métodos de Pago (reembolsos y conciliación financiera).
+>
+> **Guía de Tiempos y Costos de Envío:** se relaciona con la Política de Reembolsos, las Preguntas Frecuentes sobre Métodos de Pago y el Manual de Garantía.
+>
+> **Manual de Garantía de Productos:** se relaciona con la Política de Reembolsos, la Guía de Envíos y las Preguntas Frecuentes sobre Métodos de Pago.
+>
+> **Preguntas Frecuentes sobre Métodos de Pago:** se relaciona con la Política de Reembolsos, la Guía de Envíos y el Manual de Garantía.
+>
+> En resumen, estos documentos se relacionan entre sí en función de las políticas y procedimientos que se establecen para manejar diferentes situaciones, coordinando reembolsos, devoluciones, garantías y pagos de forma coherente.
+>
+> 📄 Fuentes: Preguntas Frecuentes sobre Métodos de Pago de BimBam Buy.pdf, Manual de Garantía de Productos de BimBam Buy.pdf, Programa de Afiliados de BimBam Buy.pdf, Política de reembolsos y devoluciones de BimBam Buy.pdf
+
+*(Este ejemplo muestra la capacidad del agente para sintetizar información de múltiples documentos en una sola respuesta, identificando las referencias cruzadas explícitas entre las políticas de la empresa.)*
+
 ## 🧠 Decisiones técnicas y alcance del proyecto
 
 Durante el desarrollo se identificaron y corrigieron varios problemas de calidad de recuperación (retrieval), documentados aquí como parte del proceso de validación:
@@ -133,11 +151,11 @@ Durante el desarrollo se identificaron y corrigieron varios problemas de calidad
 
 ## ☁️ Evidencia del Deploy
 
-**Aplicación desplegada:** [enlace pendiente]
+**Aplicación desplegada:** [enlace pendiente — Streamlit Community Cloud]
 
-**Almacenamiento en OCI Object Storage:** [captura pendiente]
+Captura de la aplicación en funcionamiento: ver `evidencia/`
 
-**Registro de ejecución:** ver `logs/ejecucion.jsonl` y capturas en `evidencia/`
+**Nota sobre la nube:** el uso de Oracle Cloud Infrastructure (OCI) fue evaluado durante el desarrollo, pero se optó por Streamlit Community Cloud para el despliegue, dado que la consigna del challenge no exige una plataforma específica, solo que el proyecto esté disponible mediante una URL pública.
 
 ## 📁 Estructura del proyecto
 Proyecto_Alura_LATAM/
