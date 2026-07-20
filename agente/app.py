@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
+import re
 
 from agent.vector_store_manager import load_vector_store
 from agent.core import build_agent, ask_agent
@@ -57,7 +58,7 @@ if pregunta := st.chat_input("Escribí tu pregunta..."):
         else:
             with st.spinner("Consultando documentos..."):
                 respuesta, fuentes = ask_agent(rag_chain, pregunta)
-                fuentes_str = ", ".join(os.path.basename(f) for f in fuentes)
+                fuentes_str = ", ".join(re.split(r'[\\/]', f)[-1] for f in fuentes)
                 st.markdown(respuesta)
                 if fuentes_str:
                     st.caption(f"📄 Fuentes: {fuentes_str}")

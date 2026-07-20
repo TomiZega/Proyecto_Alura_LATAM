@@ -58,6 +58,7 @@ def run_ingestion():
         docs = loader.load()
         for doc in docs:
             doc.page_content = strip_table_of_contents(doc.page_content)
+            doc.metadata["source"] = Path(doc.metadata["source"]).name  # solo el nombre, sin ruta
         documents.extend(docs)
         log.info(f"Cargado: {pdf_path.name} ({len(docs)} páginas)")
 
